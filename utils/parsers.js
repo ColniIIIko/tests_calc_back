@@ -2,6 +2,7 @@ const possibleDeclarations = ["let", "const"];
 
 export function replaceVariables(code) {
   const variables = {};
+  const executable = [];
 
   let lines = code.split("\n");
 
@@ -48,8 +49,9 @@ export function replaceVariables(code) {
 
         line = line.replace(regex, value);
       }
-
-      return line;
+      
+      executable.push(line);
     }
   }
+  return executable;
 }
