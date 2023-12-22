@@ -63,7 +63,7 @@ export function replaceVariables(code, variables) {
       }
 
       // return line;
-      linesToExecute.push(line);
+      if(line.length) linesToExecute.push(line);
     }
   }
 
