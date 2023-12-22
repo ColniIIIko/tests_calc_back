@@ -10,6 +10,7 @@ import dotenv from 'dotenv'
 import { ObjectId } from "mongodb";
 
 import { flattenString, replaceVariables } from "./utils/index.js";
+import calculator from './calculator.js';
 
 dotenv.config()
 
@@ -37,8 +38,10 @@ const getPlainCalculatorCode = async (code) => {
   const calculatorClean = clearModule(calculator);
   const filteredExpression = replaceVariables(code);
 
+  const expression = filteredExpression.map(ex => `\nconsole.log(calculator("${ex}"));`).join('');
+
   return (
-    validatorClean + calculatorClean + `\nconsole.log(calculator("${filteredExpression}"));`
+    validatorClean + calculatorClean + expression
   );
 };
 
@@ -56,14 +59,25 @@ async function init() {
   app.post("/submit", async (req, res) => {
     const expr = req.body.code;
 
+    
     try {
       const code = await getPlainCalculatorCode(expr);
-  
+      
       const result = await axios.post(
-        `https://${RAPID_HOST}/submissions/?wait=true`,
+        // `https://${RAPID_HOST}/submissions/?wait=true`,
+        // {
+        //     source_code: code,
+        //     language_id: 93,
+        //   },
+          `https://${RAPID_HOST}/api/v1/run`,
         {
-          source_code: code,
-          language_id: 93,
+          language: "nodejs",
+          files: [
+            {
+              name: "index.js",
+              content: code,
+            }
+          ],
         },
         {
           headers: {
@@ -71,9 +85,10 @@ async function init() {
             "X-RapidAPI-Host": RAPID_HOST,
           },
         }
-      );
-  
+        );
+        
       res.status(200);
+      console.log(result.data.stdout)
       res.send(result.data);
     } catch (error) {
       res
@@ -109,8 +124,6 @@ async function init() {
       { _id }, 
       { $set: { code, name } },
     );
-
-    console.log(result)
 
     console.log(`Updated Code: {${code}, ${name}}`);
 

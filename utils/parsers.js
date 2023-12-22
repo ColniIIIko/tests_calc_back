@@ -4,7 +4,7 @@ const possibleDeclarations = ["let", "const"];
 
 export function replaceVariables(code, variables) {
   let localVariables = variables || {};
-
+  const linesToExecute = [];
   let lines = code.split("\n");
 
   for (let line of lines) {
@@ -62,9 +62,12 @@ export function replaceVariables(code, variables) {
         line = line.replace(regex, value);
       }
 
-      return line;
+      // return line;
+      if(line.length) linesToExecute.push(line);
     }
   }
+
+  return linesToExecute;
 }
 
 const parseVariableExpression = (expression, declaration, variables) => {
