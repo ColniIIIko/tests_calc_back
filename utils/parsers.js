@@ -70,7 +70,7 @@ export function replaceVariables(code, variables) {
   return linesToExecute;
 }
 
-const parseVariableExpression = (expression, declaration, variables) => {
+export const parseVariableExpression = (expression, declaration, variables) => {
   const expressionVariables = {};
 
   let [variable, value] = expression.trim().split(/(?<!=)=(?!=)/g);
@@ -126,6 +126,10 @@ const parseVariableExpression = (expression, declaration, variables) => {
 
     if (stringFirstCharRegex.test(value.trim())) {
       value = replaceVariables(value, variables);
+    }
+
+    if (Array.isArray(value)) {
+      value = value[0];
     }
 
     expressionVariables[variable] = { declaration, value: calculator(value.trim()) };
